@@ -9,8 +9,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../g
 class EditorTestSuite(unittest.TestCase):
     """Basic test cases."""
 
-    def test_absolute_truth_and_meaning(self):
-        assert True
+    def test_constructor(self):
+        editor = gp.Editor()
+        self.assertIsNotNone(editor)
 
 
 if __name__ == '__main__':
