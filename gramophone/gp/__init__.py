@@ -1,1 +1,1 @@
-from .editor import Editor
+from .alignment import Aligner

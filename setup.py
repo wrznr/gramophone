@@ -18,6 +18,8 @@ setup(
     license=license,
     packages=find_packages(exclude=('tests', 'docs')),
     install_requires=[
+        'openfst',
+        'regex',
     ],
     setup_requires=[
         'pytest-runner',
