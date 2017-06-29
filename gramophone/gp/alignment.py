@@ -84,10 +84,47 @@ class Aligner:
         return t6
 
     def extract_alignments(self,alignment_fst):
+        '''
+        Extracts all alignments encoded in an alignment fst.
+        '''
         in_segs = []
         out_segs = []
 
+        paths = self.enumerate_paths(alignment_fst.start(),[],[],alignment_fst)
+
+        for path in paths:
+            cur_in = u""
+            cur_out = u""
+            for arc in path:
+                isym = self.syms.find(arc.ilabel).decode("utf-8")
+                osym = self.syms.find(arc.olabel).decode("utf-8")
+                if isym == u'|':
+                    in_segs.append(cur_in)
+                    cur_in = u""
+                elif isym != u'ε':
+                    cur_in += isym
+                if osym == u'µ':
+                    out_segs.append(cur_out)
+                    cur_out = u""
+                elif osym != u'ε':
+                    cur_out += osym
+            break
+
         return [in_segs,out_segs]
+
+    def enumerate_paths(self,state,path,paths,fsm):
+        '''
+        Returns a list of all paths from a given state to a final state.
+        '''
+
+        if fsm.final(state).to_string() == b'0':
+            paths += [path]
+        for arc in fsm.arcs(state):
+            new_path = path
+            new_path.append(arc)
+            paths = self.enumerate_paths(arc.nextstate, new_path, paths, fsm)
+        return paths
+        
 
     def load(self,mapping):
         """
