@@ -61,6 +61,14 @@ def test_align(datadir):
     alignment_fst.draw('/tmp/alg.dot')
     assert(alignment_fst.verify())
 
+def test_extract_align(datadir):
+    aligner = gp.Aligner(mapping=datadir.join('test_alignment.txt'))
+
+    alignment_fst = aligner.align(u"aabb",u"abbbb")
+    alignments = aligner.extract_alignments(alignment_fst)
+    assert(alignments[0] == ['aa', 'b', 'b'])
+    assert(alignments[1] == ['a', 'bb', 'bb'])
+
 
 
 if __name__ == '__main__':
