@@ -65,7 +65,14 @@ class Aligner:
 
     def align(self,g,p):
         '''
-        Aligns a grapheme and phoneme sequence pair.
+        Aligns a grapheme-phoneme sequence pair.
+        '''
+        return(self.__extract_alignments(self.__align_fst(g,p)))
+
+
+    def __align_fst(self,g,p):
+        '''
+        Creates an alignment of a grapheme and phoneme sequence pair encoded as fst.
         '''
 
         t3 = self.segment(g)
@@ -83,14 +90,14 @@ class Aligner:
 
         return t6
 
-    def extract_alignments(self,alignment_fst):
+    def __extract_alignments(self,alignment_fst):
         '''
         Extracts all alignments encoded in an alignment fst.
         '''
         in_segs = []
         out_segs = []
 
-        paths = self.enumerate_paths(alignment_fst.start(),[],[],alignment_fst)
+        paths = self.__enumerate_paths(alignment_fst.start(),[],[],alignment_fst)
 
         for path in paths:
             cur_in = u""
@@ -112,7 +119,7 @@ class Aligner:
 
         return [in_segs,out_segs]
 
-    def enumerate_paths(self,state,path,paths,fsm):
+    def __enumerate_paths(self,state,path,paths,fsm):
         '''
         Returns a list of all paths from a given state to a final state.
         '''
@@ -122,7 +129,7 @@ class Aligner:
         for arc in fsm.arcs(state):
             new_path = path
             new_path.append(arc)
-            paths = self.enumerate_paths(arc.nextstate, new_path, paths, fsm)
+            paths = self.__enumerate_paths(arc.nextstate, new_path, paths, fsm)
         return paths
         
 
