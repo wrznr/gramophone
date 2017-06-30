@@ -4,9 +4,9 @@ import sys, os, pytest
 
 from distutils import dir_util
 
-from gramophone import gp
-
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../gramophone')))
+
+from gramophone import gp
 
 
 @pytest.fixture
@@ -57,17 +57,9 @@ def test_expand(datadir):
 def test_align(datadir):
     aligner = gp.Aligner(mapping=datadir.join('test_alignment.txt'))
 
-    alignment_fst = aligner.align(u"aabb",u"abbbb")
-    alignment_fst.draw('/tmp/alg.dot')
-    assert(alignment_fst.verify())
-
-def test_extract_align(datadir):
-    aligner = gp.Aligner(mapping=datadir.join('test_alignment.txt'))
-
-    alignment_fst = aligner.align(u"aabb",u"abbbb")
-    alignments = aligner.extract_alignments(alignment_fst)
-    assert(alignments[0] == ['aa', 'b', 'b'])
-    assert(alignments[1] == ['a', 'bb', 'bb'])
+    alignment = aligner.align(u"aabb",u"abbbb")
+    assert(alignment[0] == ['aa', 'b', 'b'])
+    assert(alignment[1] == ['a', 'bb', 'bb'])
 
 
 

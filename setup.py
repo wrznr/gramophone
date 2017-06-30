@@ -20,11 +20,10 @@ setup(
     install_requires=[
         'openfst',
         'regex',
+        'Click',
     ],
-    setup_requires=[
-        'pytest-runner',
-    ],
-    tests_require=[
-        'pytest',
-    ],
+    entry_points='''
+        [console_scripts]
+        gramophone=gramophone.scripts.gramophone:cli
+    ''',
 )
