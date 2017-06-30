@@ -20,8 +20,10 @@ setup(
     install_requires=[
         'openfst',
         'regex',
+        #'wapiti',
         'Click',
     ],
+    #dependency_links=['https://github.com/adsva/python-wapiti/tarball/master#egg=wapiti'],
     entry_points='''
         [console_scripts]
         gramophone=gramophone.scripts.gramophone:cli

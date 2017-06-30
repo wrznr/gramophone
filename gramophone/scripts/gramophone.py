@@ -46,6 +46,10 @@ def train(mapping,model,data):
     # stage 2: crf training
     #
 
+    # the transcriber
+    transcriber = gp.Transcriber()
+    transcriber.train(aligned_training_data,model + ".crfsuite")
+
     #
     # stage 3: language model training
     #
