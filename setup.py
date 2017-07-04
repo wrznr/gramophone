@@ -20,6 +20,7 @@ setup(
     install_requires=[
         'openfst',
         'regex',
+        'nltk',
         #'wapiti',
         'Click',
     ],

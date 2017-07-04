@@ -24,10 +24,13 @@ class Transcriber:
         '''
         Trains a crf model.
         '''
+        if self.status != 0:
+            self.clear()
         
         # parse training data
         for alignment in training_data:
-            seq = u"\n".join(u"%s %s" % (x,y) for x,y in zip(alignment[0],alignment[1]))
+            seq = u"\n".join(u"%s %s" % (alignment[0][i],alignment[1][i]) for i in range(len(alignment[0])))
+            #seq = u"\n".join(u"%s %s" % (x,y) for x,y in zip(alignment[0],alignment[1]))
             self.model.add_training_sequence(seq)
 
         # training step
@@ -39,7 +42,9 @@ class Transcriber:
         '''
         Loads a previously trained model.
         '''
-        self.clear()
+        if self.status != 0:
+            self.clear()
+
         self.model = wapiti.Model(model=model_file)
         self.status = 1
 
