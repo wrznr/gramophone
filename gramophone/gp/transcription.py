@@ -20,7 +20,7 @@ class Transcriber:
         self.status = 0
 
 
-    def train(self, training_data, model_file):
+    def train(self, training_data):
         '''
         Trains a crf model.
         '''
@@ -38,15 +38,20 @@ class Transcriber:
 
         self.status = 1
 
+    def save(self,model_file):
+        '''
+        Saves a crf model.
+        '''
+        self.model.save(model_file)
+
+    @classmethod
     def load(self,model_file):
         '''
         Loads a previously trained model.
         '''
-        if self.status != 0:
-            self.clear()
-
-        self.model = wapiti.Model(model=model_file)
-        self.status = 1
+        model = wapiti.Model(model=model_file)
+        model.status = 1
+        return model
 
     def transcribe(self,graphemes):
         if self.status > 0:
