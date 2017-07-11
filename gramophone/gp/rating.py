@@ -119,5 +119,5 @@ class Rater(object):
                 p4 = self.quad.prob(((graphs[i-3],graphs[i-2],graphs[i-1],graphs[i]),(phons[i-3],phons[i-2],phons[i-1],phons[i]))) * self.lambda5
                 p5 = self.quin.prob(((graphs[i-4],graphs[i-3],graphs[i-2],graphs[i-1],graphs[i]),(phons[i-4],phons[i-3],phons[i-2],phons[i-1],phons[i]))) * self.lambda5
                 prob *= (p4 + p3 + p2 + p1)
-                print(prob,p4,p3,p2,p1)
+                #print(prob,p4,p3,p2,p1)
         return prob

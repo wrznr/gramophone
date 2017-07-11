@@ -21,4 +21,4 @@ def test_transcribe():
     transcriber = gp.Transcriber()
     transcriber.train([[['aa', 'b', 'b'], ['a', 'bb', 'bb']], [['aa'], ['a']], [['b', 'a', 'b'], ['bb', 'a', 'bb']]])
     print(transcriber.transcribe(['b','a']))
-    assert(transcriber.transcribe(['b','a'])==['bb', 'a', '', 'bb', 'bb'])
+    assert(transcriber.transcribe(['b','a'])==[['bb', 'a'], ['bb', 'bb']])

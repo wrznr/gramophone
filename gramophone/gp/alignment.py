@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import sys
 import pywrapfst as fst
 import regex as re
 
@@ -69,6 +70,12 @@ class Aligner:
         '''
         return(self.__extract_alignments(self.__align_fst(g,p)))
 
+    def scan(self,g):
+        '''
+        Tokenizes a grapheme sequence.
+        '''
+        return(self.__extract_segmentations(self.segment(g)))
+
 
     def __align_fst(self,g,p):
         '''
@@ -89,6 +96,28 @@ class Aligner:
         t6 = fst.compose(t5,t4)
 
         return t6
+
+    def __extract_segmentations(self,segment_fst):
+        '''
+        Extracts all segmentations encoded in a segment fst.
+        '''
+        in_segs = []
+
+        paths = self.__enumerate_paths(segment_fst.start(),[],[],segment_fst)
+
+        for path in paths:
+            cur_in = u""
+            in_seg = []
+            for arc in path:
+                osym = self.syms.find(arc.olabel).decode("utf-8")
+                if osym == u'|':
+                    in_seg.append(cur_in)
+                    cur_in = u""
+                elif osym != u'ε':
+                    cur_in += osym
+            in_segs.append(in_seg)
+
+        return in_segs
 
     def __extract_alignments(self,alignment_fst):
         '''
@@ -123,11 +152,11 @@ class Aligner:
         '''
         Returns a list of all paths from a given state to a final state.
         '''
-
+        
         if fsm.final(state).to_string() == b'0':
             paths += [path]
         for arc in fsm.arcs(state):
-            new_path = path
+            new_path = path[:]
             new_path.append(arc)
             paths = self.__enumerate_paths(arc.nextstate, new_path, paths, fsm)
         return paths
@@ -245,7 +274,3 @@ class Aligner:
         self.Ip_r = re.compile(u"%s" % u"|".join(u"%s" % re.escape(pat) for pat in sorted(list(p_set), key=len, reverse=True)), re.UNICODE)
 
         self.status = 1
-        self.E.draw('/tmp/e.dot')
-        self.Ig.draw('/tmp/g.dot')
-        self.Ip.draw('/tmp/p.dot')
-        #assert(None)
