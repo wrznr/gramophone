@@ -1,0 +1,6 @@
+-e .
+openfst
+regex
+nltk
+Click
+-e git://github.com/adsva/python-wapiti.git#egg=libwapiti
