@@ -1,0 +1,10 @@
+click==6.7
+-e git+https://github.com/wrznr/gramophone.git@6be7824c1fb14c34f5de709f1b828017bc798d10#egg=gramophone
+-e git://github.com/adsva/python-wapiti.git@ded31cfa98d02a3c897b91fbd929d069af3d6e4f#egg=libwapiti
+nltk==3.2.4
+openfst==1.6.1
+py==1.4.34
+pytest==3.1.2
+python-crfsuite==0.9.2
+regex==2017.6.23
+six==1.10.0
