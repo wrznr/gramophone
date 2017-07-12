@@ -79,7 +79,7 @@ def train(mapping,model,data):
 @click.option('-c', '--crf', required=True, help='transcription CRF model')
 @click.option('-l', '--language-model', 'lm', required=True, help='rating language model')
 @click.argument('strings', nargs=-1)
-def convert(mapping,crf,lm,strings):
+def apply(mapping,crf,lm,strings):
     """Convert strings"""
 
     #
@@ -130,4 +130,4 @@ def convert(mapping,crf,lm,strings):
 
 
 cli.add_command(train)
-cli.add_command(convert)
+cli.add_command(apply)
