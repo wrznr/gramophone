@@ -2,6 +2,53 @@
 
 import wapiti
 
+patterns = '''
+# Unigram
+U1+0:%x[0,0]
+
+# Bigram
+U1-1:%x[-1,0]
+U1+1:%x[1,0]
+U2-1:%x[-1,0]/%x[0,0]
+U2+0:%x[0,0]/%x[1,0]
+
+# Trigram
+U1-2:%x[-2,0]
+U1+2:%x[2,0]
+U2-2:%x[-2,0]/%x[-1,0]
+U2+1:%x[1,0]/%x[2,0]
+U3-2:%x[-2,0]/%x[-1,0]/%x[0,0]
+U3-1:%x[-1,0]/%x[0,0]/%x[1,0]
+U3+0:%x[0,0]/%x[1,0]/%x[2,0]
+
+# 4-gram
+U1-3:%x[-3,0]
+U1+3:%x[3,0]
+U2-3:%x[-3,0]/%x[-2,0]
+U2+2:%x[2,0]/%x[3,0]
+U3-3:%x[-3,0]/%x[-2,0]/%x[-1,0]
+U3+1:%x[1,0]/%x[2,0]/%x[3,0]
+U4-3:%x[-3,0]/%x[-2,0]/%x[-1,0]/%x[0,0]
+U4-2:%x[-2,0]/%x[-1,0]/%x[0,0]/%x[1,0]
+U4-1:%x[-1,0]/%x[0,0]/%x[1,0]/%x[2,0]
+U4+0:%x[0,0]/%x[1,0]/%x[2,0]/%x[3,0]
+
+# 5-gram
+U1-4:%x[-4,0]
+U1+4:%x[4,0]
+U2-4:%x[-4,0]/%x[-3,0]
+U2+3:%x[3,0]/%x[4,0]
+U3-4:%x[-4,0]/%x[-3,0]/%x[-2,0]
+U3+2:%x[2,0]/%x[3,0]/%x[4,0]
+U4-4:%x[-4,0]/%x[-3,0]/%x[-2,0]/%x[-1,0]
+U4+1:%x[1,0]/%x[2,0]/%x[3,0]/%x[4,0]
+U5-4:%x[-4,0]/%x[-3,0]/%x[-2,0]/%x[-1,0]/%x[0,0]
+U5-3:%x[-3,0]/%x[-2,0]/%x[-1,0]/%x[0,0]/%x[1,0]
+U5-2:%x[-2,0]/%x[-1,0]/%x[0,0]/%x[1,0]/%x[2,0]
+U5-1:%x[-1,0]/%x[0,0]/%x[1,0]/%x[2,0]/%x[3,0]
+U5+0:%x[0,0]/%x[1,0]/%x[2,0]/%x[3,0]/%x[4,0]
+'''
+
 class Transcriber:
 
     def __init__(self):
@@ -16,7 +63,7 @@ class Transcriber:
         Resets transcriber.
         '''
 
-        self.model = wapiti.Model(patterns="U1+0:%x[0,0]",nbest=2)
+        self.model = wapiti.Model(patterns=patterns,nbest=2)
         self.status = 0
 
 
@@ -44,17 +91,25 @@ class Transcriber:
         '''
         self.model.save(model_file)
 
-    @classmethod
     def load(self,model_file):
         '''
         Loads a previously trained model.
         '''
-        model = wapiti.Model(model=model_file)
-        model.status = 1
-        return model
+        self.model = wapiti.Model(model=model_file,nbest=2)
+        self.status = 1
 
     def transcribe(self,graphemes):
         if self.status > 0:
-            return self.model.label_sequence(u"\n".join(graphemes)).decode("utf-8").strip().split(u"\n")
+            transcriptions = []
+            transcription = []
+            for seg in self.model.label_sequence(u"\n".join(graphemes)).decode("utf-8").split("\n"):
+                if seg:
+                    transcription.append(seg)
+                else:
+                    transcriptions.append(transcription)
+                    transcription = []
+            if transcription:
+                transcriptions.append(transcription)
+            return transcriptions
         else:
             return []

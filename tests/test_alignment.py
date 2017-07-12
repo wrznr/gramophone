@@ -47,12 +47,25 @@ def test_segment(datadir):
     seg_fst.draw('/tmp/seg.dot')
     assert(seg_fst.verify())
 
+def test_scan(datadir):
+    aligner = gp.Aligner(mapping=datadir.join('test_alignment.txt'))
+
+    seg_fst = aligner.segment(u"aabb")
+    seg_fst.draw('/tmp/seg.dot')
+    assert(seg_fst.verify())
+
 def test_expand(datadir):
     aligner = gp.Aligner(mapping=datadir.join('test_alignment.txt'))
 
     exp_fst = aligner.expand(u"aabb")
     exp_fst.draw('/tmp/exp.dot')
     assert(exp_fst.verify())
+
+def test_scan(datadir):
+    aligner = gp.Aligner(mapping=datadir.join('test_alignment.txt'))
+
+    segmentations = aligner.scan(u"aabb")
+    assert(segmentations == [['a', 'a', 'b', 'b'], ['aa', 'b', 'b']])
 
 def test_align(datadir):
     aligner = gp.Aligner(mapping=datadir.join('test_alignment.txt'))
