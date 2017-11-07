@@ -14,3 +14,14 @@ The full paper can be downloaded [here](http://www.aclweb.org/anthology/W/W15/W1
 
 ## License
 The `gramophone` package is distributed under the terms of the [GNU Lesser General Public License (LGPL-v3)](http://kaskade.dwds.de/~moocow/gramophone/COPYING), which itself incorporates the terms and conditions of the [GNU General Public License](http://kaskade.dwds.de/~moocow/gramophone/COPYING.GPL-3).
+
+## Installation
+`gramophone` is implemented in Python. In the following, we assume a working Python 3 (Version ≥ 3.4) installation.
+
+### virtualenv
+
+Using [`virtualenv`](https://virtualenv.pypa.io/en/stable/) is highly recommended, although not strictly necessary for installing `gramophone`. It can be installed via
+
+```console
+$ [sudo] pip install virtualenv
+```
