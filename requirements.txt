@@ -2,5 +2,5 @@
 openfst
 regex
 nltk
-Click
+click
 -e git://github.com/adsva/python-wapiti.git#egg=libwapiti

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import sys, re
 import click
 from itertools import groupby
