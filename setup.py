@@ -19,8 +19,10 @@ setup(
     packages=find_packages(exclude=('tests', 'docs')),
     install_requires=[
     ],
-    entry_points='''
-        [console_scripts]
-        gramophone=gramophone.scripts.gramophone:cli
-    ''',
+    entry_points={
+          'console_scripts': [
+              'gramophone=gramophone.scripts.gramophone:cli',
+              'gramophone_server=gramophone.scripts.gramophone_server:run',
+          ]
+    },
 )
