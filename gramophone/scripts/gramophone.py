@@ -129,7 +129,7 @@ def apply_gp(mapping,crf,lm,strings):
 
     # convert
     for string in in_strings:
-        segmentations = aligner.scan(string)
+        segmentations = aligner.scan(string.lower())
         best_transcription = []
         best_prob = 0.0
         for segmentation in segmentations:
