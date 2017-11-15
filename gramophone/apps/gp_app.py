@@ -3,15 +3,22 @@ from __future__ import absolute_import
 from flask import Flask
 from flask import request
 
-def create_gp_app(aligner,transcriber,rater):
+def create_gp_app(aligner,transcriber,rater,formatter):
     app = Flask(__name__)
 
     @app.route('/gp/', methods=['GET', 'POST'])
     def index():
         if request.method == 'GET':
 
-            results = []
+            # get args
             strings = request.args.getlist('w')
+            formats = request.args.getlist('f')
+
+            oformat = ""
+            if formats:
+                oformat = formats[0]
+
+            results = []
             for string in strings:
                 segmentations = aligner.scan(string.lower())
                 best_transcription = []
@@ -24,9 +31,9 @@ def create_gp_app(aligner,transcriber,rater):
                         if prob >= best_prob:
                             best_prob = prob
                             best_transcription = transcription
-                results.append(u",".join(best_transcription))
+                results.append((string,u",".join(best_transcription),prob))
 
-            return str(results)
+            return formatter.encode(results,oformat)
 
         elif request.method == 'POST':
             return str(request.form)

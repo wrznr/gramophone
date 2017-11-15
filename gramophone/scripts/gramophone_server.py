@@ -29,9 +29,13 @@ def run(mapping,crf,lm):
     click.echo(u"...n-gram language model", err=True)
     rater = gp.Rater.load(lm)
 
+    formatter = gp.Formatter()
+
 
     #
     # load app and run
     #
-    app = apps.create_gp_app(aligner,transcriber,rater)
+    app = apps.create_gp_app(aligner,transcriber,rater,formatter)
     app.run()
+
+#000FB527B344

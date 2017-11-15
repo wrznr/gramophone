@@ -5,3 +5,5 @@ env/
 *.egg-info/
 # vim swap files
 *.swp
+# pyc files
+*.pyc

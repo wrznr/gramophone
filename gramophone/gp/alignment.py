@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import sys
 import pywrapfst as fst
 import regex as re
 
@@ -41,9 +40,15 @@ class Aligner:
             t.set_output_symbols(self.syms)
             src = t.add_state()
             t.set_start(src)
+            dest = src
             for c in g:
+                # skip unknown symbols
+                try:
+                  s = self.syms.find(c)
+                except:
+                  continue
                 dest = t.add_state()
-                t.add_arc(src,fst.Arc(self.syms.find(c), self.syms.find(c), "0", dest))
+                t.add_arc(src,fst.Arc(s, s, "0", dest))
                 src = dest
             t.set_final(dest)
         return t
@@ -89,7 +94,6 @@ class Aligner:
         t4.project(project_output=True)
 
         if t4.num_arcs(t4.start()) == 0:
-            sys.stderr.write(u"Empty expansion: %s %s\n" % (g, p))
             return fst.Fst()
 
         t5 = fst.compose(t3,self.E)
