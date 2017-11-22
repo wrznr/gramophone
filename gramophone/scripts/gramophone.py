@@ -5,16 +5,27 @@ import click
 from itertools import groupby
 
 from gramophone import gp
+from gramophone import hy
 
 @click.group()
 def cli():
     pass
 
-@click.command()
+@click.group()
+def gp():
+    """Grapheme-phoneme conversion"""
+    pass
+
+@click.group()
+def hy():
+    """Hyphenation"""
+    pass
+
+@gp.command(name="train")
 @click.option('-M', '--mapping', required=True, help='grapheme-phoneme mapping')
 @click.option('-m', '--model', default='model', help='prefix of the output model files')
 @click.argument('data')
-def train(mapping,model,data):
+def train_gp(mapping,model,data):
     """Train a model"""
 
     #
@@ -76,12 +87,12 @@ def train(mapping,model,data):
     rater.save(model + ".ngram")
 
     
-@click.command()
+@gp.command(name="apply")
 @click.option('-M', '--mapping', required=True, help='grapheme-phoneme mapping')
 @click.option('-c', '--crf', required=True, help='transcription CRF model')
 @click.option('-l', '--language-model', 'lm', required=True, help='rating language model')
 @click.argument('strings', nargs=-1)
-def apply(mapping,crf,lm,strings):
+def apply_gp(mapping,crf,lm,strings):
     """Convert strings"""
 
     #
@@ -131,5 +142,7 @@ def apply(mapping,crf,lm,strings):
         click.echo(u",".join(best_transcription))
 
 
-cli.add_command(train)
-cli.add_command(apply)
+gp.add_command(train_gp)
+gp.add_command(apply_gp)
+cli.add_command(gp)
+cli.add_command(hy)
