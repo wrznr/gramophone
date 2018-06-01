@@ -37,5 +37,3 @@ def run(mapping,crf,lm):
     #
     app = apps.create_gp_app(aligner,transcriber,rater,formatter)
     app.run()
-
-#000FB527B344
