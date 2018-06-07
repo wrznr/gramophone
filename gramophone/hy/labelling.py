@@ -4,49 +4,52 @@ import wapiti
 
 patterns = '''
 # Unigram
-U1+0:%x[0,0]
+U1+0:%x[0,1]
 
 # Bigram
-U1-1:%x[-1,0]
-U1+1:%x[1,0]
-U2-1:%x[-1,0]/%x[0,0]
-U2+0:%x[0,0]/%x[1,0]
+U1-1:%x[-1,1]
+U1+1:%x[1,1]
+U2-1:%x[-1,1]/%x[0,1]
+U2+0:%x[0,1]/%x[1,1]
 
 # Trigram
-U1-2:%x[-2,0]
-U1+2:%x[2,0]
-U2-2:%x[-2,0]/%x[-1,0]
-U2+1:%x[1,0]/%x[2,0]
-U3-2:%x[-2,0]/%x[-1,0]/%x[0,0]
-U3-1:%x[-1,0]/%x[0,0]/%x[1,0]
-U3+0:%x[0,0]/%x[1,0]/%x[2,0]
+U1-2:%x[-2,1]
+U1+2:%x[2,1]
+U2-2:%x[-2,1]/%x[-1,1]
+U2+1:%x[1,1]/%x[2,1]
+U3-2:%x[-2,1]/%x[-1,1]/%x[0,1]
+U3-1:%x[-1,1]/%x[0,1]/%x[1,1]
+U3+0:%x[0,1]/%x[1,1]/%x[2,1]
 
 # 4-gram
-U1-3:%x[-3,0]
-U1+3:%x[3,0]
-U2-3:%x[-3,0]/%x[-2,0]
-U2+2:%x[2,0]/%x[3,0]
-U3-3:%x[-3,0]/%x[-2,0]/%x[-1,0]
-U3+1:%x[1,0]/%x[2,0]/%x[3,0]
-U4-3:%x[-3,0]/%x[-2,0]/%x[-1,0]/%x[0,0]
-U4-2:%x[-2,0]/%x[-1,0]/%x[0,0]/%x[1,0]
-U4-1:%x[-1,0]/%x[0,0]/%x[1,0]/%x[2,0]
-U4+0:%x[0,0]/%x[1,0]/%x[2,0]/%x[3,0]
+U1-3:%x[-3,1]
+U1+3:%x[3,1]
+U2-3:%x[-3,1]/%x[-2,1]
+U2+2:%x[2,1]/%x[3,1]
+U3-3:%x[-3,1]/%x[-2,1]/%x[-1,1]
+U3+1:%x[1,1]/%x[2,1]/%x[3,1]
+U4-3:%x[-3,1]/%x[-2,1]/%x[-1,1]/%x[0,1]
+U4-2:%x[-2,1]/%x[-1,1]/%x[0,1]/%x[1,1]
+U4-1:%x[-1,1]/%x[0,1]/%x[1,1]/%x[2,1]
+U4+0:%x[0,1]/%x[1,1]/%x[2,1]/%x[3,1]
 
 # 5-gram
-U1-4:%x[-4,0]
-U1+4:%x[4,0]
-U2-4:%x[-4,0]/%x[-3,0]
-U2+3:%x[3,0]/%x[4,0]
-U3-4:%x[-4,0]/%x[-3,0]/%x[-2,0]
-U3+2:%x[2,0]/%x[3,0]/%x[4,0]
-U4-4:%x[-4,0]/%x[-3,0]/%x[-2,0]/%x[-1,0]
-U4+1:%x[1,0]/%x[2,0]/%x[3,0]/%x[4,0]
-U5-4:%x[-4,0]/%x[-3,0]/%x[-2,0]/%x[-1,0]/%x[0,0]
-U5-3:%x[-3,0]/%x[-2,0]/%x[-1,0]/%x[0,0]/%x[1,0]
-U5-2:%x[-2,0]/%x[-1,0]/%x[0,0]/%x[1,0]/%x[2,0]
-U5-1:%x[-1,0]/%x[0,0]/%x[1,0]/%x[2,0]/%x[3,0]
-U5+0:%x[0,0]/%x[1,0]/%x[2,0]/%x[3,0]/%x[4,0]
+U1-4:%x[-4,1]
+U1+4:%x[4,1]
+U2-4:%x[-4,1]/%x[-3,1]
+U2+3:%x[3,1]/%x[4,1]
+U3-4:%x[-4,1]/%x[-3,1]/%x[-2,1]
+U3+2:%x[2,1]/%x[3,1]/%x[4,1]
+U4-4:%x[-4,1]/%x[-3,1]/%x[-2,1]/%x[-1,1]
+U4+1:%x[1,1]/%x[2,1]/%x[3,1]/%x[4,1]
+U5-4:%x[-4,1]/%x[-3,1]/%x[-2,1]/%x[-1,1]/%x[0,1]
+U5-3:%x[-3,1]/%x[-2,1]/%x[-1,1]/%x[0,1]/%x[1,1]
+U5-2:%x[-2,1]/%x[-1,1]/%x[0,1]/%x[1,1]/%x[2,1]
+U5-1:%x[-1,1]/%x[0,1]/%x[1,1]/%x[2,1]/%x[3,1]
+U5+0:%x[0,1]/%x[1,1]/%x[2,1]/%x[3,1]/%x[4,1]
+
+#Bigram
+B01:%x[0,2]/%x[1,2]
 '''
 
 class Labeller:
@@ -60,7 +63,7 @@ class Labeller:
 
     def clear(self):
         '''
-        Resets transcriber.
+        Resets labeller.
         '''
 
         self.model = wapiti.Model(patterns=patterns,nbest=1)
@@ -75,10 +78,8 @@ class Labeller:
             self.clear()
         
         # parse training data
-        for labelled_seq in training_data:
-            seq = u"\n".join(u"%s %s" % (labelled_seq[0][i],labelled_seq[1][i]) for i in range(len(labelled_seq[0])))
-            #seq = u"\n".join(u"%s %s" % (x,y) for x,y in zip(alignment[0],alignment[1]))
-            self.model.add_training_sequence(seq)
+        for encoded_seq in training_data:
+            self.model.add_training_sequence(u"\n".join(encoded_seq))
 
         # training step
         self.model.train()
@@ -98,13 +99,13 @@ class Labeller:
         self.model = wapiti.Model(model=model_file,nbest=1)
         self.status = 1
 
-    def label(self,graphemes):
+    def label(self,encoded_seq):
         if self.status > 0:
             labelled_seqs = []
             labelled_seq = []
-            for seg in self.model.label_sequence(u"\n".join(graphemes)).decode("utf-8").split("\n"):
+            for seg in self.model.label_sequence(u"\n".join(encoded_seq)).split(b"\n"):
                 if seg:
-                    labelled_seq.append(seg)
+                    labelled_seq.append(seg.decode("utf-8"))
                 else:
                     labelled_seqs.append(labelled_seq)
                     labelled_seq = []
