@@ -5,3 +5,4 @@ nltk
 click
 Flask
 -e git://github.com/adsva/python-wapiti.git#egg=libwapiti
+pytest
