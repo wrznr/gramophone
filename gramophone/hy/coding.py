@@ -14,6 +14,7 @@ class Coder:
         self.clear()
         self.clean_re = re.compile("\s+", re.U)
         self.special_char_re = re.compile("[']", re.U)
+        self.ws_char_re = re.compile("\s", re.U)
 
     def clear(self):
         """
@@ -62,6 +63,11 @@ class Coder:
                 hint = "1"
             elif self.special_char_re.match(g[i]):
                 encodement.append([g[i],u"'",hint,split])
+            elif g[i] == u" ":
+                encodement.append([u"<s/>",u"<s/>","1","1"])
+                split = "0"
+                hint = "0"
+                j += 1
             else:
                 encodement.append([g[i],g[i].lower(),hint,split])
                 split = "0"
