@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
 import sys, re
@@ -236,7 +237,31 @@ def apply_hy(crf,strings):
                 combination.append(u"%s\t%s" % (encodement[i],labelling[i]))
             click.echo(coder.decode(combination))
 
+@HY.command(name="import")
+@click.option('-f', '--format', default='dwds', help='Input file format', type=click.Choice(['dwds']))
+@click.argument('data')
+def import_hy(format,data):
+    """Import data for training"""
+
+    with open(str(data),"r") as f:
+        conversion_data = f.read()
+
+        out_data = {}
+        with click.progressbar(conversion_data.split(u"\n")) as bar:
+            for line in bar:
+                fields = line.split(u',')
+                if len(fields) != 3:
+                    continue
+                in_words = fields[2].split(u' | ')
+                out_syl = fields[1].split(u' · ')
+                # TODO: Discuss with @haoess
+                if len(in_words) != len(out_syl):
+                    continue
+                for i in range(0,len(in_words)):
+                    click.echo(u"%s\t%s" % (in_words[i].strip(u'"').replace(u'·', u'-'), re.sub(u"(?<!^)-",u"·",out_syl[i].strip(u'"'))))
+
 
 HY.add_command(train_hy)
 HY.add_command(apply_hy)
+HY.add_command(import_hy)
 cli.add_command(HY)
