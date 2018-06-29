@@ -27,7 +27,7 @@ def HY(name="hy"):
 @click.option('-m', '--model', default='model', help='prefix of the output model files')
 @click.argument('data')
 def train_gp(mapping,model,data):
-    """Train a model"""
+    """Train a model."""
 
     #
     # stage 1: alignment
@@ -129,7 +129,7 @@ def apply_gp(mapping,crf,lm,strings):
 
     # convert
     for string in in_strings:
-        segmentations = aligner.scan(string)
+        segmentations = aligner.scan(string.lower())
         best_transcription = []
         best_prob = 0.0
         for segmentation in segmentations:
@@ -195,7 +195,7 @@ def train_hy(model,data):
     labeller.save(model + ".hy.crf")
     
 @HY.command(name="apply")
-@click.option('-c', '--crf', required=True, help='transcription CRF model')
+@click.option('-c', '--crf', required=True, help='hyphenation CRF model')
 @click.argument('strings', nargs=-1)
 def apply_hy(crf,strings):
     """Convert strings"""
