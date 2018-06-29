@@ -22,7 +22,7 @@ setup(
     entry_points={
           'console_scripts': [
               'gramophone=gramophone.scripts.gramophone:cli',
-              'gramophone-server=gramophone.scripts.gramophone_server:run',
+              'gramophone-server=gramophone.scripts.gramophone_server:cli',
           ]
     },
 )
