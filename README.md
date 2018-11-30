@@ -19,7 +19,7 @@ The `gramophone` package is distributed under the terms of the [GNU Lesser Gener
 `gramophone` is implemented in Python. In the following, we assume a working Python (Version ≥ 2.7, for Python 3: Version ≥ 3.4) installation as well as a working C++ compiler.
 
 ### OpenFst
-`gramophone` uses [`OpenFst`](http://www.openfst.org/twiki/bin/view/FST/) for constructing and applying finite-state transducers. In particular, the [Python interface](http://www.openfst.org/twiki/bin/view/FST/PythonExtension) is used. While the Python side can be installed via `pip`, the underlying C++ library has to be installed manually. The latest version of the Python interface **available at the Python package index** is 1.6.1. Obtain the corresponding sources from http://www.openfst.org/twiki/pub/FST/FstDownload/openfst-1.6.1.tar.gz and follow the instructions shipped with the package. Make sure to activate the `far` extension while configuring.
+`gramophone` uses [`OpenFst`](http://www.openfst.org/twiki/bin/view/FST/) for constructing and applying finite-state transducers. In particular, the [Python interface](http://www.openfst.org/twiki/bin/view/FST/PythonExtension) is used. While the Python side can be installed via `pip`, the underlying C++ library has to be installed manually. The latest version of the Python interface **available at the Python package index** is 1.6.9. Obtain the corresponding sources from http://www.openfst.org/twiki/pub/FST/FstDownload/openfst-1.6.9.tar.gz and follow the instructions shipped with the package. Make sure to use the `--enable-grm` option while configuring.
 
 ### virtualenv
 Using [`virtualenv`](https://virtualenv.pypa.io/en/stable/) is highly recommended, although not strictly necessary for installing `gramophone`. It can be installed via:
@@ -45,4 +45,11 @@ $ . env/bin/activate
 
 ```console
 (env) $ pip install -r requirements.txt
+```
+
+### Installation
+Finally, you are ready to install the package:
+
+```console
+(env) $ pip install -e .
 ```
