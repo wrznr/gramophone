@@ -47,7 +47,7 @@ $ . env/bin/activate
 (env) $ pip install -r requirements.txt
 ```
 
-### Installation
+### Package installation
 Finally, you are ready to install the package:
 
 ```console
