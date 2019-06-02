@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import sys, re
+import sys
+import re
+import string
 import click
 from itertools import groupby
+from bz2file import BZ2File
+
+import wiktionary_de_parser as wdp
 
 from gramophone import gp
 from gramophone import hy
@@ -21,6 +26,26 @@ def GP(name="gp"):
 def HY(name="hy"):
     """Hyphenation"""
     pass
+
+@GP.command(name="prechew")
+@click.argument('dump')
+def prechew_gp(dump):
+    """Prepare training data (from wiktionary dump)."""
+
+    #
+    # open dump
+    #
+    bz = BZ2File(dump)
+
+    #
+    # iterate over records
+    #
+    for record in wdp.Parser(bz):
+        # read only German entries
+        if 'language' not in record or record['language'] != 'Deutsch':
+            continue
+        elif 'syllables' in record and 'ipa' in record and not any(c in record['title'] for c in string.whitespace):
+            click.echo("%s\t%s" % ("".join(record['syllables']),record.get('ipa')))
 
 @GP.command(name="train")
 @click.option('-M', '--mapping', required=True, help='grapheme-phoneme mapping')
@@ -143,6 +168,7 @@ def apply_gp(mapping,crf,lm,strings):
         click.echo(u",".join(best_transcription))
 
 
+GP.add_command(prechew_gp)
 GP.add_command(train_gp)
 GP.add_command(apply_gp)
 cli.add_command(GP)
