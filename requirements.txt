@@ -8,3 +8,4 @@ Flask
 pytest
 wiktionary_de_parser
 bz2file
+tqdm
