@@ -6,3 +6,6 @@ click
 Flask
 -e git://github.com/adsva/python-wapiti.git#egg=libwapiti
 pytest
+wiktionary_de_parser
+bz2file
+tqdm

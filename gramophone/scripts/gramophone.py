@@ -1,12 +1,20 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import sys, re
+import sys
+import re
+import string
 import click
 from itertools import groupby
+from bz2file import BZ2File
+from tqdm import tqdm
+
+import wiktionary_de_parser as wdp
 
 from gramophone import gp
 from gramophone import hy
+
+clean_wiki_re = re.compile('[ˈˌ\\-,]')
 
 @click.group()
 def cli():
@@ -21,6 +29,39 @@ def GP(name="gp"):
 def HY(name="hy"):
     """Hyphenation"""
     pass
+
+@GP.command(name="prechew")
+@click.argument('dump')
+def prechew_gp(dump):
+    """Prepare training data (from wiktionary dump)."""
+
+    #
+    # open dump
+    #
+    bz = BZ2File(dump)
+
+    #
+    # iterate over records
+    #
+    training_data = {}
+    for record in tqdm(wdp.Parser(bz), total=820000):
+        # read only German entries
+        if 'language' not in record or record['language'] != 'Deutsch':
+            continue
+        # skipping multi word expressions!
+        elif 'syllables' in record and 'ipa' in record and not any(c in record['title'] for c in string.whitespace):
+            graph_rep = "".join(record['syllables']).lower()
+            phon_rep = clean_wiki_re.sub("", record.get('ipa'))
+            if graph_rep not in training_data:
+                training_data[graph_rep] = set()
+            training_data[graph_rep].add(phon_rep)
+
+    #
+    # print training data
+    #
+    for graph_rep, phon_reps in training_data.items():
+        for phon_rep in phon_reps:
+            click.echo("%s\t%s" % (graph_rep, phon_rep))
 
 @GP.command(name="train")
 @click.option('-M', '--mapping', required=True, help='grapheme-phoneme mapping')
@@ -143,6 +184,7 @@ def apply_gp(mapping,crf,lm,strings):
         click.echo(u",".join(best_transcription))
 
 
+GP.add_command(prechew_gp)
 GP.add_command(train_gp)
 GP.add_command(apply_gp)
 cli.add_command(GP)
