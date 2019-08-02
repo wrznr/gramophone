@@ -68,7 +68,7 @@ class Coder:
                 char = ""
             else:
                 char = g[i]
-                while i < len(g) - 1 and unicodedata.combining(g[i + 1]):
+                while i < len(g) - 1 and (unicodedata.combining(g[i + 1]) or g[i + 1] == 'ː'):
                     i += 1
                     char += g[i]
                 encodement.append([char,stress])

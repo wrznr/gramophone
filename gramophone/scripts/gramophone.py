@@ -56,7 +56,7 @@ def prechew_gp(format, data):
         if 'language' not in record or record['language'] != 'Deutsch':
             continue
         # skipping multi word expressions!
-        elif 'syllables' in record and 'ipa' in record and not any(c in record['title'] for c in string.whitespace):
+        elif 'syllables' in record and 'ipa' in record and not any(c in record['title'] for c in string.whitespace) and not any(c in record['ipa'] for c in string.whitespace):
             graph_rep = "".join(record['syllables']).lower()
             phon_rep = clean_wiki_re.sub("", record.get('ipa'))
             if graph_rep not in training_data:
@@ -428,7 +428,7 @@ def prechew_st(format, data):
         if 'language' not in record or record['language'] != 'Deutsch':
             continue
         # skipping multi word expressions!
-        elif 'syllables' in record and 'ipa' in record and not any(c in record['title'] for c in string.whitespace):
+        elif 'syllables' in record and 'ipa' in record and not any(c in record['title'] for c in string.whitespace) and not any(c in record['ipa'] for c in string.whitespace):
             phon_rep = clean_wiki_re.sub("", record.get('ipa'))
             if phon_rep not in training_data:
                 training_data[phon_rep] = set()
