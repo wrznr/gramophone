@@ -37,14 +37,15 @@ def ST(name="st"):
     pass
 
 @GP.command(name="prechew")
-@click.argument('dump')
-def prechew_gp(dump):
-    """Prepare training data (from wiktionary dump)."""
+@click.option('-f', '--format', default='wiki-dump', help='Input file format', type=click.Choice(['wiki-dump']))
+@click.argument('data')
+def prechew_gp(format, data):
+    """Import data for training"""
 
     #
     # open dump
     #
-    bz = BZ2File(dump)
+    bz = BZ2File(data)
 
     #
     # iterate over records
@@ -80,26 +81,26 @@ def train_gp(mapping,model,data):
     #
     # stage 1: alignment
     #
-    click.echo(u"Stage 1a: creating data alignment", err=True)
+    click.echo("Stage 1a: creating data alignment", err=True)
 
     # the aligner
     aligner = gp.Aligner(mapping=mapping)
 
-    click.echo(u"Stage 1b: aligning training data", err=True)
+    click.echo("Stage 1b: aligning training data", err=True)
     # iterate over input and align training data
     aligned_training_data = []
     with open(str(data),"r") as f:
         training_data = f.read()
 
-        with click.progressbar(training_data.split(u"\n")) as bar:
+        with click.progressbar(training_data.split("\n")) as bar:
             for line in bar:
 
                 # skip comments
-                if line.startswith(u"#"):
+                if line.startswith("#"):
                     continue
 
                 # assume tab-separated values
-                fields = line.split(u"\t")
+                fields = line.split("\t")
                 if len(fields) < 2:
                     continue
 
@@ -110,7 +111,7 @@ def train_gp(mapping,model,data):
     #
     # stage 2: crf training
     #
-    click.echo(u"Stage 2: training transcription CRF model", err=True)
+    click.echo("Stage 2: training transcription CRF model", err=True)
 
     # the transcriber
     transcriber = gp.Transcriber()
@@ -124,7 +125,7 @@ def train_gp(mapping,model,data):
     #
     # stage 3: language model training
     #
-    click.echo(u"Stage 3: training rating n-gram language model", err=True)
+    click.echo("Stage 3: training rating n-gram language model", err=True)
 
     # the rater
     rater = gp.Rater()
@@ -147,16 +148,16 @@ def apply_gp(mapping,crf,lm,strings):
     #
     # loading
     #
-    click.echo(u"Loading...", err=True)
+    click.echo("Loading...", err=True)
 
-    click.echo(u"...data alignment", err=True)
+    click.echo("...data alignment", err=True)
     aligner = gp.Aligner(mapping=mapping)
 
-    click.echo(u"...transcription CRF model", err=True)
+    click.echo("...transcription CRF model", err=True)
     transcriber = gp.Transcriber()
     transcriber.load(crf)
 
-    click.echo(u"...n-gram language model", err=True)
+    click.echo("...n-gram language model", err=True)
     rater = gp.Rater.load(lm)
 
 
@@ -166,7 +167,7 @@ def apply_gp(mapping,crf,lm,strings):
 
     # read input
     in_strings = []
-    if strings and strings[0] == u"-":
+    if strings and strings[0] == "-":
         for line in sys.stdin:
             in_strings.append(line.strip())
     elif strings:
@@ -184,11 +185,11 @@ def apply_gp(mapping,crf,lm,strings):
             transcriptions = transcriber.transcribe(segmentation)
             for transcription in transcriptions:
                 prob = rater.rate([segmentation,transcription])
-                #click.echo("%s: %f" % (u",".join(transcription),prob), err=True)
+                #click.echo("%s: %f" % (",".join(transcription),prob), err=True)
                 if prob >= best_prob:
                     best_prob = prob
                     best_transcription = transcription
-        click.echo(u",".join(best_transcription))
+        click.echo(",".join(best_transcription))
 
 
 GP.add_command(prechew_gp)
@@ -205,7 +206,7 @@ def train_hy(model,data):
     #
     # stage 1: read
     #
-    click.echo(u"Stage 1: Encoding training data", err=True)
+    click.echo("Stage 1: Encoding training data", err=True)
     coder = hy.Coder()
 
     # iterate over input
@@ -213,15 +214,15 @@ def train_hy(model,data):
     with open(str(data),"r") as f:
         training_data = f.read()
 
-        with click.progressbar(training_data.split(u"\n")) as bar:
+        with click.progressbar(training_data.split("\n")) as bar:
             for line in bar:
 
                 # skip comments
-                if line.startswith(u"#"):
+                if line.startswith("#"):
                     continue
 
                 # assume tab-separated values
-                fields = line.split(u"\t")
+                fields = line.split("\t")
                 if len(fields) < 2:
                     continue
 
@@ -232,7 +233,7 @@ def train_hy(model,data):
     #
     # stage 2: crf training
     #
-    click.echo(u"Stage 2: training labelling CRF model", err=True)
+    click.echo("Stage 2: training labelling CRF model", err=True)
 
     # the transcriber
     labeller = hy.Labeller()
@@ -252,12 +253,12 @@ def apply_hy(crf,strings):
     #
     # loading
     #
-    click.echo(u"Loading...", err=True)
+    click.echo("Loading...", err=True)
 
-    click.echo(u"...coder", err=True)
+    click.echo("...coder", err=True)
     coder = hy.Coder()
 
-    click.echo(u"...hyphenation CRF model", err=True)
+    click.echo("...hyphenation CRF model", err=True)
     labeller = hy.Labeller()
     labeller.load(crf)
 
@@ -267,7 +268,7 @@ def apply_hy(crf,strings):
 
     # read input
     in_strings = []
-    if strings and strings[0] == u"-":
+    if strings and strings[0] == "-":
         for line in sys.stdin:
             in_strings.append(line.strip())
     elif strings:
@@ -283,20 +284,20 @@ def apply_hy(crf,strings):
         combination = []
         for labelling in labellings:
             for i in range(len(encodement)):
-                combination.append(u"%s\t%s" % (encodement[i],labelling[i]))
+                combination.append("%s\t%s" % (encodement[i],labelling[i]))
             click.echo(coder.decode(combination))
 
-@HY.command(name="import")
+@HY.command(name="prechew")
 @click.option('-f', '--format', default='dwds', help='Input file format', type=click.Choice(['dwds']))
 @click.argument('data')
-def import_hy(format,data):
+def prechew_hy(format, data):
     """Import data for training"""
 
     with open(str(data),"r") as f:
         conversion_data = f.read()
 
         out_data = {}
-        with click.progressbar(conversion_data.split(u"\n")) as bar:
+        with click.progressbar(conversion_data.split("\n")) as bar:
             for line in bar:
                 fields = line.split(u',')
                 if len(fields) != 3:
@@ -307,12 +308,12 @@ def import_hy(format,data):
                 if len(in_words) != len(out_syl):
                     continue
                 for i in range(0,len(in_words)):
-                    click.echo(u"%s\t%s" % (in_words[i].strip(u'"').replace(u'·', u'-'), re.sub(u"(?<!^)-",u"·",out_syl[i].strip(u'"'))))
+                    click.echo("%s\t%s" % (in_words[i].strip(u'"').replace(u'·', u'-'), re.sub("(?<!^)-","·",out_syl[i].strip(u'"'))))
 
 
 HY.add_command(train_hy)
 HY.add_command(apply_hy)
-HY.add_command(import_hy)
+HY.add_command(prechew_hy)
 cli.add_command(HY)
     
 @ST.command(name="apply")
@@ -324,14 +325,14 @@ def apply_st(crf,strings):
     #
     # loading
     #
-    click.echo(u"Loading...", err=True)
+    click.echo("Loading...", err=True)
 
-    click.echo(u"...coder", err=True)
+    click.echo("...coder", err=True)
     coder = st.Coder()
 
-    #click.echo(u"...stress assignment CRF model", err=True)
-    #labeller = st.Labeller()
-    #labeller.load(crf)
+    click.echo("...stress assignment CRF model", err=True)
+    labeller = st.Labeller()
+    labeller.load(crf)
 
     #
     # conversion
@@ -339,7 +340,7 @@ def apply_st(crf,strings):
 
     # read input
     in_strings = []
-    if strings and strings[0] == u"-":
+    if strings and strings[0] == "-":
         for line in sys.stdin:
             in_strings.append(line.strip())
     elif strings:
@@ -356,11 +357,9 @@ def apply_st(crf,strings):
         combination = []
         for labelling in labellings:
             for i in range(len(encodement)):
-                combination.append(u"%s\t%s" % (encodement[i],labelling[i]))
+                combination.append("%s\t%s" % (encodement[i],labelling[i]))
             click.echo(coder.decode(combination))
 
-ST.add_command(apply_st)
-cli.add_command(ST)
 
 @ST.command(name="train")
 @click.option('-m', '--model', default='model', help='prefix of the output model files')
@@ -371,7 +370,7 @@ def train_st(model,data):
     #
     # stage 1: read
     #
-    click.echo(u"Stage 1: Encoding training data", err=True)
+    click.echo("Stage 1: Encoding training data", err=True)
     coder = st.Coder()
 
     # iterate over input
@@ -379,15 +378,15 @@ def train_st(model,data):
     with open(str(data),"r") as f:
         training_data = f.read()
 
-        with click.progressbar(training_data.split(u"\n")) as bar:
+        with click.progressbar(training_data.split("\n")) as bar:
             for line in bar:
 
                 # skip comments
-                if line.startswith(u"#"):
+                if line.startswith("#"):
                     continue
 
                 # assume tab-separated values
-                fields = line.split(u"\t")
+                fields = line.split("\t")
                 if len(fields) < 2:
                     continue
 
@@ -398,7 +397,7 @@ def train_st(model,data):
     #
     # stage 2: crf training
     #
-    click.echo(u"Stage 2: training labelling CRF model", err=True)
+    click.echo("Stage 2: training labelling CRF model", err=True)
 
     # the transcriber
     labeller = st.Labeller()
@@ -408,3 +407,42 @@ def train_st(model,data):
 
     # save
     labeller.save(model + ".st.crf")
+
+@ST.command(name="prechew")
+@click.option('-f', '--format', default='wiki-dump', help='Input file format', type=click.Choice(['wiki-dump']))
+@click.argument('data')
+def prechew_st(format, data):
+    """Import data for training"""
+
+    #
+    # open dump
+    #
+    bz = BZ2File(data)
+
+    #
+    # iterate over records
+    #
+    training_data = {}
+    for record in tqdm(wdp.Parser(bz), total=820000):
+        # read only German entries
+        if 'language' not in record or record['language'] != 'Deutsch':
+            continue
+        # skipping multi word expressions!
+        elif 'syllables' in record and 'ipa' in record and not any(c in record['title'] for c in string.whitespace):
+            phon_rep = clean_wiki_re.sub("", record.get('ipa'))
+            if phon_rep not in training_data:
+                training_data[phon_rep] = set()
+            training_data[phon_rep].add(record.get('ipa'))
+
+    #
+    # print training data
+    #
+    for phon_rep, ipas in training_data.items():
+        for ipa in ipas:
+            click.echo("%s\t%s" % (phon_rep, ipa))
+
+
+ST.add_command(apply_st)
+ST.add_command(train_st)
+ST.add_command(prechew_st)
+cli.add_command(ST)
