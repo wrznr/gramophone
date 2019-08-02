@@ -13,6 +13,7 @@ import wiktionary_de_parser as wdp
 
 from gramophone import gp
 from gramophone import hy
+from gramophone import st
 
 clean_wiki_re = re.compile('[ˈˌ\\-,]')
 
@@ -28,6 +29,11 @@ def GP(name="gp"):
 @click.group()
 def HY(name="hy"):
     """Hyphenation"""
+    pass
+
+@click.group()
+def ST(name="st"):
+    """Stress assignment"""
     pass
 
 @GP.command(name="prechew")
@@ -62,6 +68,7 @@ def prechew_gp(dump):
     for graph_rep, phon_reps in training_data.items():
         for phon_rep in phon_reps:
             click.echo("%s\t%s" % (graph_rep, phon_rep))
+
 
 @GP.command(name="train")
 @click.option('-M', '--mapping', required=True, help='grapheme-phoneme mapping')
@@ -307,3 +314,97 @@ HY.add_command(train_hy)
 HY.add_command(apply_hy)
 HY.add_command(import_hy)
 cli.add_command(HY)
+    
+@ST.command(name="apply")
+@click.option('-c', '--crf', required=True, help='stress assignment CRF model')
+@click.argument('strings', nargs=-1)
+def apply_st(crf,strings):
+    """Convert strings"""
+
+    #
+    # loading
+    #
+    click.echo(u"Loading...", err=True)
+
+    click.echo(u"...coder", err=True)
+    coder = st.Coder()
+
+    #click.echo(u"...stress assignment CRF model", err=True)
+    #labeller = st.Labeller()
+    #labeller.load(crf)
+
+    #
+    # conversion
+    #
+
+    # read input
+    in_strings = []
+    if strings and strings[0] == u"-":
+        for line in sys.stdin:
+            in_strings.append(line.strip())
+    elif strings:
+        for datum in strings:
+            in_strings.append(datum)
+    else:
+        pass
+
+    # convert
+    for string in in_strings:
+        encodement = coder.encode(string,mode="scan")
+        click.echo(encodement)
+        labellings = labeller.label(encodement)
+        combination = []
+        for labelling in labellings:
+            for i in range(len(encodement)):
+                combination.append(u"%s\t%s" % (encodement[i],labelling[i]))
+            click.echo(coder.decode(combination))
+
+ST.add_command(apply_st)
+cli.add_command(ST)
+
+@ST.command(name="train")
+@click.option('-m', '--model', default='model', help='prefix of the output model files')
+@click.argument('data')
+def train_st(model,data):
+    """Train a model"""
+
+    #
+    # stage 1: read
+    #
+    click.echo(u"Stage 1: Encoding training data", err=True)
+    coder = st.Coder()
+
+    # iterate over input
+    encoded_training_data = []
+    with open(str(data),"r") as f:
+        training_data = f.read()
+
+        with click.progressbar(training_data.split(u"\n")) as bar:
+            for line in bar:
+
+                # skip comments
+                if line.startswith(u"#"):
+                    continue
+
+                # assume tab-separated values
+                fields = line.split(u"\t")
+                if len(fields) < 2:
+                    continue
+
+                # encode
+                encodement = coder.encode(fields[1])
+                encoded_training_data.append(encodement)
+
+    #
+    # stage 2: crf training
+    #
+    click.echo(u"Stage 2: training labelling CRF model", err=True)
+
+    # the transcriber
+    labeller = st.Labeller()
+
+    # train with previously read training data
+    labeller.train(encoded_training_data)
+
+    # save
+    labeller.save(model + ".st.crf")
