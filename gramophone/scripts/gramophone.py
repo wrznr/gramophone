@@ -92,21 +92,23 @@ def train_gp(mapping,model,data):
     with open(str(data),"r") as f:
         training_data = f.read()
 
-        with click.progressbar(training_data.split("\n")) as bar:
-            for line in bar:
+        for line in tqdm(training_data.split("\n")):
 
-                # skip comments
-                if line.startswith("#"):
-                    continue
+            # skip comments
+            if line.startswith("#"):
+                continue
 
-                # assume tab-separated values
-                fields = line.split("\t")
-                if len(fields) < 2:
-                    continue
+            # assume tab-separated values
+            fields = line.split("\t")
+            if len(fields) < 2:
+                continue
 
-                # align
-                alignment = aligner.align(fields[0],fields[1])
+            # align
+            alignment = aligner.align(fields[0],fields[1])
+            if alignment:
                 aligned_training_data.append(alignment)
+            else:
+                click.echo("%s and %s could not be aligned." % (fields[0], fields[1]))
 
     #
     # stage 2: crf training
@@ -352,7 +354,6 @@ def apply_st(crf,strings):
     # convert
     for string in in_strings:
         encodement = coder.encode(string,mode="scan")
-        click.echo(encodement)
         labellings = labeller.label(encodement)
         combination = []
         for labelling in labellings:

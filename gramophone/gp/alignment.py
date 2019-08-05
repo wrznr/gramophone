@@ -73,6 +73,9 @@ class Aligner:
         '''
         Aligns a grapheme-phoneme sequence pair.
         '''
+        alignment_fst = self.__align_fst(g,p)
+        if alignment_fst.start() == -1:
+            return []
         return(self.__extract_alignments(self.__align_fst(g,p)))
 
     def scan(self,g):
@@ -93,7 +96,7 @@ class Aligner:
         t4 = self.expand(p)
         t4.project(project_output=True)
 
-        if t4.num_arcs(t4.start()) == 0:
+        if t4.start() == -1 or t4.num_arcs(t4.start()) == 0:
             return fst.Fst()
 
         t5 = fst.compose(t3,self.E)
