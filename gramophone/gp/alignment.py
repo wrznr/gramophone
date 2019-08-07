@@ -76,13 +76,16 @@ class Aligner:
         alignment_fst = self.__align_fst(g,p)
         if alignment_fst.start() == -1:
             return []
-        return(self.__extract_alignments(self.__align_fst(g,p)))
+        return self.__extract_alignments(alignment_fst)
 
-    def scan(self,g):
+    def scan(self,g, grapheme=True):
         '''
-        Tokenizes a grapheme sequence.
+        Tokenizes a grapheme or a phoneme sequence.
         '''
-        return(self.__extract_segmentations(self.segment(g)))
+        if grapheme:
+            return(self.__extract_segmentations(self.segment(g)))
+        else:
+            return(self.__extract_segmentations(self.expand(g)))
 
 
     def __align_fst(self,g,p):

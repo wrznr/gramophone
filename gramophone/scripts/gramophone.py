@@ -15,7 +15,7 @@ from gramophone import gp
 from gramophone import hy
 from gramophone import st
 
-clean_wiki_re = re.compile('[ˈˌ\\-,]')
+clean_wiki_re = re.compile('[ˈˌ\\-ˑ,]')
 
 @click.group()
 def cli():
@@ -72,10 +72,11 @@ def prechew_gp(format, data):
 
 
 @GP.command(name="train")
-@click.option('-M', '--mapping', required=True, help='grapheme-phoneme mapping')
-@click.option('-m', '--model', default='model', help='prefix of the output model files')
+@click.option('-M', '--mapping', required=True, help='Grapheme-phoneme mapping')
+@click.option('-m', '--model', default='model', help='Prefix of the output model files')
+@click.option('-r', '--replacement', help='Replacement table of undesired IPA sequences (TSV)', type=click.File('r'))
 @click.argument('data')
-def train_gp(mapping,model,data):
+def train_gp(mapping,model,data,replacement):
     """Train a model."""
 
     #
@@ -85,6 +86,15 @@ def train_gp(mapping,model,data):
 
     # the aligner
     aligner = gp.Aligner(mapping=mapping)
+
+    # the replacement
+    replace_map = {}
+    if replacement:
+        for line in replacement:
+            fields = line.split("\t")
+            if len(fields) > 1:
+                replace_map[fields[0]] = fields[1]
+
 
     click.echo("Stage 1b: aligning training data", err=True)
     # iterate over input and align training data
@@ -106,6 +116,9 @@ def train_gp(mapping,model,data):
             # align
             alignment = aligner.align(fields[0],fields[1])
             if alignment:
+                for i in range(0, len(alignment[1])):
+                    if alignment[1][i] in replace_map:
+                        alignment[1][i] = replace_map[alignment[1][i]]
                 aligned_training_data.append(alignment)
             else:
                 click.echo("%s and %s could not be aligned." % (fields[0], fields[1]))
@@ -140,11 +153,12 @@ def train_gp(mapping,model,data):
 
     
 @GP.command(name="apply")
-@click.option('-M', '--mapping', required=True, help='grapheme-phoneme mapping')
-@click.option('-c', '--crf', required=True, help='transcription CRF model')
-@click.option('-l', '--language-model', 'lm', required=True, help='rating language model')
+@click.option('-M', '--mapping', required=True, help='Grapheme-phoneme mapping')
+@click.option('-O', '--output-format', default='ipa', help='Output file format', type=click.Choice(['ipa','gp','gp-aligned']))
+@click.option('-c', '--crf', required=True, help='Transcription CRF model')
+@click.option('-l', '--language-model', 'lm', required=True, help='Rating language model')
 @click.argument('strings', nargs=-1)
-def apply_gp(mapping,crf,lm,strings):
+def apply_gp(mapping,output_format,crf,lm,strings):
     """Convert strings"""
 
     #
@@ -181,7 +195,7 @@ def apply_gp(mapping,crf,lm,strings):
     # convert
     for string in in_strings:
         segmentations = aligner.scan(string.lower())
-        best_transcription = []
+        best_transcription = ()
         best_prob = 0.0
         for segmentation in segmentations:
             transcriptions = transcriber.transcribe(segmentation)
@@ -190,8 +204,13 @@ def apply_gp(mapping,crf,lm,strings):
                 #click.echo("%s: %f" % (",".join(transcription),prob), err=True)
                 if prob >= best_prob:
                     best_prob = prob
-                    best_transcription = transcription
-        click.echo(",".join(best_transcription))
+                    best_transcription = (segmentation,transcription)
+        if output_format == "ipa":
+            click.echo(",".join(best_transcription[1]))
+        elif output_format == "gp":
+            click.echo("%s\t%s" % ("".join(best_transcription[0]),"".join(best_transcription[1])))
+        elif output_format == "gp-aligned":
+            click.echo(",".join("%s:%s" % st for st in zip(best_transcription[0],best_transcription[1])))
 
 
 GP.add_command(prechew_gp)
@@ -200,7 +219,7 @@ GP.add_command(apply_gp)
 cli.add_command(GP)
 
 @HY.command(name="train")
-@click.option('-m', '--model', default='model', help='prefix of the output model files')
+@click.option('-m', '--model', default='model', help='Prefix of the output model files')
 @click.argument('data')
 def train_hy(model,data):
     """Train a model"""
@@ -247,7 +266,7 @@ def train_hy(model,data):
     labeller.save(model + ".hy.crf")
     
 @HY.command(name="apply")
-@click.option('-c', '--crf', required=True, help='hyphenation CRF model')
+@click.option('-c', '--crf', required=True, help='Hyphenation CRF model')
 @click.argument('strings', nargs=-1)
 def apply_hy(crf,strings):
     """Convert strings"""
@@ -319,7 +338,7 @@ HY.add_command(prechew_hy)
 cli.add_command(HY)
     
 @ST.command(name="apply")
-@click.option('-c', '--crf', required=True, help='stress assignment CRF model')
+@click.option('-c', '--crf', required=True, help='Stress assignment CRF model')
 @click.argument('strings', nargs=-1)
 def apply_st(crf,strings):
     """Convert strings"""
@@ -363,7 +382,7 @@ def apply_st(crf,strings):
 
 
 @ST.command(name="train")
-@click.option('-m', '--model', default='model', help='prefix of the output model files')
+@click.option('-m', '--model', default='model', help='Prefix of the output model files')
 @click.argument('data')
 def train_st(model,data):
     """Train a model"""
